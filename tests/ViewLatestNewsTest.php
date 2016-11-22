@@ -23,7 +23,7 @@ class ViewLatestNewsTest extends TestCase
      */
     public function testViewingLastestNews()
     {
-        $news = factory(Article::class, 20)->create();
+        $news = factory(Article::class, 14)->create();
 
         $latestNewsTitles = Article::getLatest()->lists('title')->toArray();
 

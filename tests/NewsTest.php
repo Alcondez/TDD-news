@@ -17,7 +17,7 @@ class NewsTest extends TestCase
      */
     public function testGettingLatestNews()
     {
-        factory(Article::class, 20)->create();
+        factory(Article::class, 13)->create();
 
         $latestNews = Article::getLatest();
 
