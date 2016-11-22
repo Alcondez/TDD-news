@@ -3,10 +3,13 @@
 namespace App\Http\Controllers\Auth;
 
 use App\User;
+use Illuminate\Http\RedirectResponse;
 use Validator;
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\ThrottlesLogins;
 use Illuminate\Foundation\Auth\AuthenticatesAndRegistersUsers;
+use Illuminate\Http\Request;
+use App\Services\ActivationService;
 
 class AuthController extends Controller
 {
@@ -22,6 +25,12 @@ class AuthController extends Controller
     */
 
     use AuthenticatesAndRegistersUsers, ThrottlesLogins;
+    /**
+     * Activation service instance
+     *
+     * @var ActivationService
+     */
+    protected $activationService;
 
     /**
      * Where to redirect users after login / registration.
@@ -35,9 +44,64 @@ class AuthController extends Controller
      *
      * @return void
      */
-    public function __construct()
+    public function __construct(ActivationService $activationService)
     {
         $this->middleware($this->guestMiddleware(), ['except' => 'logout']);
+        $this->activationService = $activationService;
+    }
+
+    /**
+     * Overriding the register method to not login the user upon registration
+     *
+     * @param  Request $request
+     * @return RedirectResponse
+     */
+    public function register(Request $request)
+    {
+        $validator = $this->validator($request->all());
+
+        if ($validator->fails()) {
+            $this->throwValidationException(
+                $request, $validator
+            );
+        }
+
+        $user = $this->create($request->all());
+
+        $this->activationService->sendActivationMail($user);
+
+        return redirect('/login')->with('status', 'We sent you an activation code. Check your email.');
+    }
+
+    public function authenticated(Request $request, $user)
+    {
+        if (!$user->activated) {
+            $this->activationService->sendActivationMail($user);
+            auth()->logout();
+            return back()->with('warning', 'You need to confirm your account. We have sent you an activation code, please check your email.');
+        }
+        return redirect()->intended($this->redirectPath());
+    }
+
+    public function activateUser($token)
+    {
+        if ($user = $this->activationService->activateUser($token)) {
+            //auth()->login($user);
+            return view('auth.passwords.newpassword', compact('user'));
+
+        }
+        abort(404);
+    }
+
+    public function passwordConfirm(Request $request)
+    {
+        $userId = $request->input('id');
+        User::find($userId)->update([
+            'password' => bcrypt($request->input('password')),
+        ]);
+        $user = User::find($userId);
+        auth()->login($user);
+        return redirect($this->redirectPath());
     }
 
     /**
@@ -51,7 +115,6 @@ class AuthController extends Controller
         return Validator::make($data, [
             'name' => 'required|max:255',
             'email' => 'required|email|max:255|unique:users',
-            'password' => 'required|min:6|confirmed',
         ]);
     }
 
@@ -66,7 +129,7 @@ class AuthController extends Controller
         return User::create([
             'name' => $data['name'],
             'email' => $data['email'],
-            'password' => bcrypt($data['password']),
+            'password' => bcrypt(str_random(10)),
         ]);
     }
 }
