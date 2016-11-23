@@ -37,7 +37,7 @@ class AuthController extends Controller
      *
      * @var string
      */
-    protected $redirectTo = '/';
+    protected $redirectTo = '/dashboard';
 
     /**
      * Create a new authentication controller instance.
@@ -75,6 +75,7 @@ class AuthController extends Controller
 
     public function authenticated(Request $request, $user)
     {
+
         if (!$user->activated) {
             $this->activationService->sendActivationMail($user);
             auth()->logout();

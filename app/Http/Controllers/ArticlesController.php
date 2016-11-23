@@ -2,14 +2,25 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\HelperService;
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Facades\Auth;
 use App\Article;
-
+use Carbon\Carbon;
+use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\App;
 use App\Http\Requests;
+use Roumen\Feed\Feed;
 
 class ArticlesController extends Controller
 {
+
+    protected $helperService;
+
+    public function __construct(HelperService $helperServ)
+    {
+        $this->helperService = $helperServ;
+    }
     /**
      * Display a listing of the resource.
      *
@@ -19,7 +30,7 @@ class ArticlesController extends Controller
     {
         $articles = Article::getLatest();
 
-        return view('news.index', compact('articles'));
+        return view('articles.index', compact('articles'));
     }
 
     /**
@@ -29,27 +40,7 @@ class ArticlesController extends Controller
      */
     public function create()
     {
-        $mail = new \PHPMailer(true); // notice the \  you have to use root namespace here
-        try {
-            $mail->isSMTP();
-            $mail->CharSet = "utf-8";
-            $mail->SMTPAuth = true;
-            $mail->SMTPSecure = "tls";
-            $mail->Host = "smtp.gmail.com";
-            $mail->Port = 587;
-            $mail->Username = "gcamacho@navicu.com";
-            $mail->Password = "Zeus2412";
-            $mail->setFrom("gcamacho@navicu.com", "Firstname Lastname");
-            $mail->Subject = "Test";
-            $mail->MsgHTML("This is a test");
-            $mail->addAddress("aconde@navicu.com", "Recipient Name");
-            $mail->send();
-        } catch (phpmailerException $e) {
-            dd($e);
-        } catch (Exception $e) {
-            dd($e);
-        }
-        die('success');
+        return view('articles.create');
     }
 
     /**
@@ -60,7 +51,28 @@ class ArticlesController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $this->validate($request, [
+            'title' => 'required|max:25',
+            'excerpt' => 'required|max:50',
+            'image' => 'required',
+            'body' => 'required|',
+        ]);
+
+        $user = Auth::user();
+
+        Article::create([
+
+            'title' => $request->input('title'),
+            'excerpt' => $request->input('excerpt'),
+            'slug' => $this->helperService->generateSlug($request->input('title')),
+            'photo_path' => $this->helperService->ProcessImage($request->file('image')),
+            'body' => $request->input('body'),
+            'date' => new Carbon(),
+            'user_id' => $user->id
+
+        ]);
+
+        return redirect('/dashboard');
     }
 
     /**
@@ -73,7 +85,7 @@ class ArticlesController extends Controller
     {
         $article = Article::findBySlug($slug);
 
-        return view('news.show', compact('article'));
+        return view('articles.show', compact('article'));
     }
 
     /**
@@ -107,6 +119,46 @@ class ArticlesController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $article = Article::find($id);
+
+        $article->delete();
+
+        return redirect('/dashboard');
+    }
+
+    public function generateFeed()
+    {
+        $feed = new Feed();
+
+        if (!$feed->isCached())
+        {
+
+            $articles = Article::orderBy('created_at', 'desc')->take(10)->get();
+
+            // set your feed's title, description, link, pubdate and language
+            $feed->title = 'Your title';
+            $feed->description = 'Your description';
+            $feed->link = url('feed');
+            $feed->setDateFormat('datetime'); // 'datetime', 'timestamp' or 'carbon'
+            $feed->pubdate = $articles[0]->created_at;
+            $feed->lang = 'en';
+            $feed->setShortening(true); // true or false
+            $feed->setTextLimit(100); // maximum length of description text
+
+            foreach ($articles as $article)
+            {
+                // set item's title, author, url, pubdate, description, content, enclosure (optional)*
+                $feed->add(
+                    $article->title,
+                    $article->user()->get()->first()->name,
+                    URL::to('/articles/'.$article->slug),
+                    $article->created_at,
+                    $article->excerpt,
+                    $article->body);
+            }
+
+        }
+
+        return $feed->render('atom');
     }
 }

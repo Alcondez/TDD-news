@@ -24,8 +24,12 @@ $factory->define(App\Article::class, function (Faker\Generator $faker) {
     return [
         'title' => $faker->sentence(7),
         'slug' => $faker->slug(7),
+        'excerpt' => $faker->paragraph(3),
         'photo_path' => $faker->sentence(3),
-        'body' => $faker->paragraph(),
+        'body' => $faker->paragraph(20),
         'date' => $faker->date('Y-m-d'),
+        'user_id' => function () {
+            return factory(App\User::class)->create()->id;
+        }
     ];
 });

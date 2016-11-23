@@ -11,7 +11,7 @@ class NewsTest extends TestCase
 
     use DatabaseMigrations;
     /**
-     * Test if the getLatest method return the latest 10 news
+     * Test if the getLatest method return the latest 10 articles
      *
      * @return void
      */

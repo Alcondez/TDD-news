@@ -3,15 +3,26 @@
 @section('content')
 <div class="container">
     <div class="row">
-        <div class="col-md-10 col-md-offset-1">
-            <div class="panel panel-default">
-                <div class="panel-heading">Dashboard</div>
-
-                <div class="panel-body">
-                    You are logged in!
-                </div>
-            </div>
-        </div>
+        <a class="btn btn-block btn-primary" href="{{ action('ArticlesController@create') }}">
+            New Article
+        </a>
     </div>
+    <div class="row">
+        <ul class="list-group">
+            @foreach($articles as $article)
+                <li class="list-group-item clearfix">
+                    <a href="{{ action('ArticlesController@show', ['slug' => $article->slug]) }}">{{ $article->title }}</a>
+                    <span class="pull-right">
+						<form role="form" method="POST" action="/articles/{{ $article->id }}">
+                        {{ csrf_field() }}
+                            {{ method_field('DELETE') }}
+                            <button type="submit" class="btn btn-primary btn-danger btn-sm">Delete</button>
+						</form>
+					</span>
+                </li>
+            @endforeach
+        </ul>
+    </div>
+
 </div>
 @endsection

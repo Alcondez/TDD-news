@@ -17,7 +17,7 @@ class ViewLatestNewsTest extends TestCase
 {
     use DatabaseMigrations;
     /**
-     * Tests if an unauthenticated user can see the latest 10 news
+     * Tests if an unauthenticated user can see the latest 10 articles
      *
      * @return void
      */

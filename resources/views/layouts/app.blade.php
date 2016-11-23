@@ -13,8 +13,7 @@
 
     <!-- Styles -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
-    {{-- <link href="{{ elixir('css/app.css') }}" rel="stylesheet"> --}}
-
+    {!! Feed::link(url('feed'), 'atom', 'News App Feed', 'en') !!}
     <style>
         body {
             font-family: 'Lato';
@@ -47,7 +46,12 @@
             <div class="collapse navbar-collapse" id="app-navbar-collapse">
                 <!-- Left Side Of Navbar -->
                 <ul class="nav navbar-nav">
-                    <li><a href="{{ url('/home') }}">Home</a></li>
+                    @if (Auth::guest())
+                        <li><a href="{{ url('/') }}">Home</a></li>
+                    @else
+                        <li><a href="{{ url('/dashboard') }}">Dashboard</a></li>
+                    @endif
+
                 </ul>
 
                 <!-- Right Side Of Navbar -->
