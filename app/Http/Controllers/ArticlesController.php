@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\App;
 use App\Http\Requests;
 use Roumen\Feed\Feed;
+use Dompdf\Dompdf;
+use Illuminate\Support\Facades\View;
 
 class ArticlesController extends Controller
 {
@@ -160,5 +162,18 @@ class ArticlesController extends Controller
         }
 
         return $feed->render('atom');
+    }
+
+    public function generatePdf($slug)
+    {
+        $dompdf = new Dompdf();
+
+        $article = Article::findBySlug($slug);
+
+        $html = View::make('articles.pdfview', compact('article'))->render();
+
+        $dompdf->loadHTML($html);
+        //return $html;
+        return $dompdf->stream();
     }
 }

@@ -9,7 +9,8 @@
         "laravel/framework": "5.2.*",
         "phpmailer/phpmailer": "~5.2",
         "sybio/image-workshop": "2.0.*",
-        "roumen/feed": "^2.10"
+        "roumen/feed": "^2.10",
+        "dompdf/dompdf": "^0.7.0"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",
