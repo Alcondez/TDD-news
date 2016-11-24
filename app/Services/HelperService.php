@@ -3,7 +3,7 @@
 namespace App\Services;
 
 use PHPImageWorkshop\ImageWorkshop as ImageWorkshop;
-
+use Illuminate\Support\Facades\App;
 
 class HelperService
 {
@@ -59,12 +59,16 @@ class HelperService
     public function ProcessImage($image)
     {
         $name = time() . $image->getClientOriginalName();
-        $image->move('articleimages/images', $name);
         $path = "articleimages/images";
         $pathimage = "articleimages/images/" . $name;
-        $newimage = ImageWorkshop::initFromPath($pathimage);
-        $newimage->resizeInPixel(825,400,false);
-        $newimage->save($path,$name ,false, null, 95);
+        if (!App::runningInConsole()) {
+            $image->move('articleimages/images', $name);
+            $newimage = ImageWorkshop::initFromPath($pathimage);
+            $newimage->resizeInPixel(825, 400, false);
+            $newimage->save($path, $name, false, null, 95);
+        }
+
+
 
         return $pathimage;
     }
