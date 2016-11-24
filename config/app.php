@@ -160,6 +160,7 @@ return [
          * Vendor Service Providers...
          */
         Roumen\Feed\FeedServiceProvider::class,
+        Barryvdh\DomPDF\ServiceProvider::class,
 
     ],
 
@@ -207,6 +208,7 @@ return [
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View' => Illuminate\Support\Facades\View::class,
         'Feed' => Roumen\Feed\Feed::class,
+        'PDF' => Barryvdh\DomPDF\Facade::class,
 
     ],
 

@@ -12,7 +12,7 @@
     <div class="row">
         <div class="col-md-12 text-center" >
 
-            <img class="img-responsive" src="{{ asset($article->photo_path) }}" alt="">
+            <img src="{{ asset($article->photo_path) }}" alt="">
         </div>
     </div>
 

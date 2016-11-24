@@ -39,7 +39,7 @@ class ActivationService
             $mail->Port = config('mail.port');;
             $mail->Username = config('mail.username');
             $mail->Password = config('mail.password');
-            $mail->setFrom(config('mail.username'), "noreply");
+            $mail->setFrom('noreply@gmail.com', "noreply");
             $mail->Subject = "News Application Registration Confirmation";
             $mail->MsgHTML($message);
             $mail->addAddress($user->email, $user->name);

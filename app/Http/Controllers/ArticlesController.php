@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Services\HelperService;
+use PDF;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Article;
@@ -11,7 +12,6 @@ use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\App;
 use App\Http\Requests;
 use Roumen\Feed\Feed;
-use Dompdf\Dompdf;
 use Illuminate\Support\Facades\View;
 
 class ArticlesController extends Controller
@@ -166,14 +166,12 @@ class ArticlesController extends Controller
 
     public function generatePdf($slug)
     {
-        $dompdf = new Dompdf();
 
         $article = Article::findBySlug($slug);
 
         $html = View::make('articles.pdfview', compact('article'))->render();
 
-        $dompdf->loadHTML($html);
-        //return $html;
-        return $dompdf->stream();
+        $pdf = PDF::loadHTML($html);
+        return $pdf->stream();
     }
 }
