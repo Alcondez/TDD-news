@@ -15,12 +15,26 @@
             <img src="{{ asset($article->photo_path) }}" alt="">
         </div>
     </div>
-
+    <hr>
     <div class="row">
 
         <div class="col-md-12 text-center">
 
-            {{ $article->body }}
+            <p>{{ $article->body }}</p>
+        </div>
+    </div>
+    <div class="row">
+
+        <div class="col-md-12 text-center">
+
+            <h5>{{ $article->date }}</h5>
+        </div>
+    </div>
+    <div class="row">
+
+        <div class="col-md-12 text-center">
+
+            <h5>{{ $article->user->name }} - {{ $article->user->email }}</h5>
         </div>
     </div>
 

@@ -30,6 +30,6 @@ class Article extends Model
 
     public static function findBySlug($slug)
     {
-        return Article::where('slug', $slug)->first()->get()->first();
+        return Article::where('slug', $slug)->get()->first();
     }
 }
